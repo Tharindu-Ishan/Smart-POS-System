@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -57,8 +58,25 @@ public class ManageCustomerFormController {
 
     }
 
-    public void btnAddNew_OnAction(ActionEvent actionEvent) {
-        
+    public void btnAddNew_OnAction(ActionEvent actionEvent) throws IOException {
+        for (TextField textField : new TextField[]{txtCustomerId, txtCustomerName, txtCustomerAddress})
+            textField.clear();
+        tblCustomers.getSelectionModel().clearSelection();
+        txtCustomerName.requestFocus();
+        try {
+            String lastCustomerId = CustomerDataAccess.getLastCustomerId();
+            if(lastCustomerId==null){
+                txtCustomerId.setText("C001");
+            }else {
+                int newID=Integer.parseInt(lastCustomerId.substring(1))+1;
+                txtCustomerId.setText(String.format("C%03d",newID));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to establish the database connection, try again").show();
+            navigateToHome(null);
+        }
+
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {

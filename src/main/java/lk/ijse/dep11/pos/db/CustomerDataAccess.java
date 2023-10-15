@@ -11,12 +11,15 @@ import java.util.List;
 
 public class CustomerDataAccess {
     private static final PreparedStatement STM_GET_ALL;
+    private static final PreparedStatement STM_GET_LAST_ID;
+
 
 
     static {
         try {
             Connection connection = SingleConnectionDataSource.getInstance().getConnection();
             STM_GET_ALL = connection.prepareStatement("SELECT * FROM customer ORDER BY id");
+            STM_GET_LAST_ID= connection.prepareStatement("SELECT id FROM customer ORDER BY id DESC FETCH FIRST ROWS ONLY ");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -33,5 +36,15 @@ public class CustomerDataAccess {
             customerList.add(new Customer(id,name,address));
         }
         return customerList;
+    }
+    public static String getLastCustomerId() throws SQLException{
+        ResultSet rst = STM_GET_LAST_ID.executeQuery();
+        if(rst.next()){
+            return rst.getString(1);
+        }
+        else {
+            return null;
+        }
+
     }
 }
