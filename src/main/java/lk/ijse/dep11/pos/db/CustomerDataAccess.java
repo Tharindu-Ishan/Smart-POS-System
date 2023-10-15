@@ -14,6 +14,7 @@ public class CustomerDataAccess {
     private static final PreparedStatement STM_GET_LAST_ID;
     private static final PreparedStatement STM_INSERT;
     private static final PreparedStatement STM_UPDATE;
+    private static final PreparedStatement STM_DELETE;
 
 
 
@@ -25,6 +26,7 @@ public class CustomerDataAccess {
             STM_GET_LAST_ID= connection.prepareStatement("SELECT id FROM customer ORDER BY id DESC FETCH FIRST ROWS ONLY ");
             STM_INSERT=connection.prepareStatement("INSERT INTO customer (id, name, address) VALUES (?,?,?)");
             STM_UPDATE=connection.prepareStatement("UPDATE customer SET name=?,address=? WHERE id=?");
+            STM_DELETE=connection.prepareStatement("DELETE FROM customer WHERE id=?");
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -64,5 +66,9 @@ public class CustomerDataAccess {
         STM_UPDATE.setString(2,customer.getAddress());
         STM_UPDATE.setString(3,customer.getId());
         STM_UPDATE.executeUpdate();
+    }
+    public static void deleteCustomer(String customerId) throws SQLException {
+        STM_DELETE.setString(1, customerId);
+        STM_DELETE.executeUpdate();
     }
 }
