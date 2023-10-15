@@ -3,6 +3,7 @@ package lk.ijse.dep11.pos.controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -54,6 +55,20 @@ public class ManageCustomerFormController {
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "Failed to load customers, try later!").show();
         }
+        tblCustomers.getSelectionModel().selectedItemProperty().addListener((ov, prev, cur) ->{
+            if (cur != null){
+                btnSave.setText("UPDATE");
+                btnDelete.setDisable(false);
+                txtCustomerId.setText(cur.getId());
+                txtCustomerName.setText(cur.getName());
+                txtCustomerAddress.setText(cur.getAddress());
+            }else{
+                btnSave.setText("SAVE");
+                btnDelete.setDisable(true);
+            }
+        });
+        Platform.runLater(txtCustomerName::requestFocus);
+
 
 
     }
@@ -80,6 +95,45 @@ public class ManageCustomerFormController {
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
+        if(!isDataValid()) return;
+        String id = txtCustomerId.getText();
+        String name = txtCustomerName.getText();
+        String address = txtCustomerAddress.getText();
+        Customer customer = new Customer(id, name, address);
+        try{
+            if(btnSave.getText().equals("Save")){
+                CustomerDataAccess.saveCustomer(customer);
+                tblCustomers.getItems().add(customer);
+            }else {
+                CustomerDataAccess.updateCustomer(customer);
+                ObservableList<Customer> customerList = tblCustomers.getItems();
+                Customer selectedItem = tblCustomers.getSelectionModel().getSelectedItem();
+                customerList.set(customerList.indexOf(selectedItem),customer);
+                tblCustomers.refresh();
+            }
+            btnAddNew.fire();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to save the customer, try again").show();
+
+        }
+
+    }
+    private boolean isDataValid(){
+        String name = txtCustomerName.getText().strip();
+        String address = txtCustomerAddress.getText().strip();
+
+        if (!name.matches("[A-Za-z ]{2,}")) {
+            txtCustomerName.requestFocus();
+            txtCustomerName.selectAll();
+            return false;
+        } else if (address.length() < 3) {
+            txtCustomerAddress.requestFocus();
+            txtCustomerAddress.selectAll();
+            return false;
+        }
+
+        return true;
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
