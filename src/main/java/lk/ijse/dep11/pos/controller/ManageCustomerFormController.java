@@ -7,13 +7,18 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.dep11.pos.db.CustomerDataAccess;
+import lk.ijse.dep11.pos.tm.Customer;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 
 public class ManageCustomerFormController {
     public AnchorPane root;
@@ -22,7 +27,8 @@ public class ManageCustomerFormController {
     public JFXTextField txtCustomerAddress;
     public JFXButton btnSave;
     public JFXButton btnDelete;
-    public TableView tblCustomers;
+    public TableView<Customer> tblCustomers;
+    public JFXButton btnAddNew;
 
     public void navigateToHome(MouseEvent mouseEvent) throws IOException {
         URL resource = this.getClass().getResource("/view/MainForm.fxml");
@@ -33,8 +39,26 @@ public class ManageCustomerFormController {
         primaryStage.centerOnScreen();
         Platform.runLater(primaryStage::sizeToScene);
     }
+    public void initialize(){
+        tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
+        tblCustomers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
+        tblCustomers.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
+        txtCustomerId.setEditable(false);
+        btnDelete.setDisable(true);
+        btnSave.setDefaultButton(true);
+        btnAddNew.fire();
+        try {
+            tblCustomers.getItems().addAll(CustomerDataAccess.getAllCustomers());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to load customers, try later!").show();
+        }
+
+
+    }
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
+        
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
