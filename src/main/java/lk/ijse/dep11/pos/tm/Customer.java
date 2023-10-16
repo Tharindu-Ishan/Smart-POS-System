@@ -13,8 +13,8 @@ public class Customer {
     private String name;
     private String address;
 
-//    @Override
-//    public String toString() {
-//        return id;
-//    }
+    @Override
+    public String toString() {
+        return id;
+    }
 }
